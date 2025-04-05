@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ninja Translator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary-color: #8e44ad;
+      --primary-light: #a569bd;
+      --primary-dark: #732d91;
+      --accent-color: #3498db;
+      --dark-bg: #2c3e50;
+      --light-bg: #f9f9f9;
+      --text-color: #333;
+      --text-light: #666;
+      --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      --border-color: #ddd;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light-bg);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Navbar styles */
+    .navbar {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.5rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      text-decoration: none;
+      color: white;
+    }
+    .logo span {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      list-style: none;
+      gap: 1.5rem;
+    }
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s;
+    }
+    .nav-links a:hover {
+      opacity: 0.8;
+    }
+    .auth-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    .auth-btn {
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .signin-btn {
+      background-color: transparent;
+      border: 1px solid white;
+      color: white;
+    }
+    .signin-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .signup-btn {
+      background-color: white;
+      color: var(--primary-color);
+      border: 1px solid white;
+    }
+    .signup-btn:hover {
+      background-color: #f0f0f0;
+    }
+    /* Mobile menu */
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    /* Main container styles */
+    .main-content {
+      flex: 1;
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .page-title {
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: var(--card-shadow);
+    }
+    .translation-box {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .text-area {
+      flex: 1;
+      min-width: 300px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    textarea {
+      height: 200px;
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      resize: none;
+      font-size: 16px;
+      line-height: 1.5;
+      transition: border-color 0.3s;
+      padding-bottom: 30px; /* Add padding to avoid overlap with char count */
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.2);
+    }
+    select {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      margin-top: 10px;
+      font-size: 14px;
+      background-color: white;
+    }
+    button {
+      padding: 12px 24px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+    button:disabled {
+      background-color: #d2b4de;
+      cursor: not-allowed;
+    }
+    .swap-btn {
+      align-self: center;
+      padding: 12px;
+      cursor: pointer;
+      background: #f0f0f0;
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      font-size: 20px;
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+    .swap-btn:hover {
+      background-color: #e0e0e0;
+      color: var(--primary-color);
+    }
+    .status-message {
+      margin-top: 10px;
+      font-style: italic;
+      color: var(--text-light);
+      min-height: 20px;
+    }
+    .char-count {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      font-size: 12px;
+      color: var(--text-light);
+      pointer-events: none;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      gap: 10px; /* Add gap between buttons */
+    }
+    .copy-btn, .clear-btn {
+      background: transparent;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      flex: 1; /* Make buttons take equal space */
+      text-align: center;
+    }
+    .copy-btn:hover, .clear-btn:hover {
+      background: rgba(142, 68, 173, 0.1);
+    }
+    /* Footer */
+    footer {
+      background-color: var(--dark-bg);
+      color: white;
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    footer p {
+      margin-bottom: 0.5rem;
+    }
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .social-links a {
+      color: white;
+      font-size: 1.2rem;
+      transition: opacity 0.3s;
+    }
+    .social-links a:hover {
+      opacity: 0.8;
+    }
+    /* Membership banner */
+    .membership-banner {
+      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+      color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      text-align: center;
+      box-shadow: var(--card-shadow);
+    }
+    .membership-banner h3 {
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+    .membership-banner p {
+      margin-bottom: 1rem;
+    }
+    .premium-btn {
+      background-color: white;
+      color: var(--primary-color);
+      font-weight: 600;
+      padding: 0.6rem 1.2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+    .premium-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .btn-with-spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .spinner {
+      display: none;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 10px;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      .translation-box {
+        flex-direction: column;
+      }
+      .swap-btn {
+        transform: rotate(90deg);
+        margin: 10px 0;
+      }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background-color: var(--primary-color);
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .nav-links.active {
+        display: flex;
+      }
+      .mobile-toggle {
+        display: block;
+      }
+    }
+    .debug {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      display: none;
+    }
+    .flash-messages {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .flash-messages .success {
+      color: #28a745;
+    }
+    .flash-messages .error {
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="{{ url_for('index') }}" class="logo">
+      <span>Ninja</span>
+    </a>
+    <button class="mobile-toggle" id="mobile-toggle">
+      <i class="fas fa-bars"></i>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+      <li><a href="{{ url_for('payment') }}">Membership</a></li>
+      <li><a href="#">Help</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+    <div class="auth-buttons">
+      {% if user %}
+        <span>Welcome, {{ user.name }}!</span>
+        <a href="{{ url_for('logout') }}" class="auth-btn signin-btn">Logout</a>
+      {% else %}
+        <a href="{{ url_for('signin') }}" class="auth-btn signin-btn">Sign In</a>
+        <a href="{{ url_for('signup') }}" class="auth-btn signup-btn">Sign Up</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <p class="{{ category }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <!-- Premium Membership Banner -->
+    <div class="membership-banner">
+      <h3>Upgrade to Premium for Advanced Translation Features</h3>
+      <p>Get unlimited translations, offline mode, document translation, and more!</p>
+      <a href="{{ url_for('payment') }}" class="premium-btn">Go Premium</a>
+    </div>
+
+    <!-- Translation Tool -->
+    <h1 class="page-title">Universal Language Translator</h1>
+    <div class="container">
+      <div class="translation-box">
+        <div class="text-area">
+          <textarea id="source-text" placeholder="Enter text to translate" maxlength="5000"></textarea>
+          <div class="char-count"><span id="char-counter">0</span>/5000</div>
+          <select id="source-language">
+            <option value="auto">Detect Language</option>
+          </select>
+          <div id="source-status" class="status-message"></div>
+          <div class="controls">
+            <button class="copy-btn" id="copy-source">Copy</button>
+            <button class="clear-btn" id="clear-source">Clear</button>
+          </div>
+        </div>
+        <button class="swap-btn" id="swap-languages">⇆</button>
+        <div class="text-area">
+          <textarea id="target-text" placeholder="Translation" readonly></textarea>
+          <select id="target-language"></select>
+          <div id="target-status" class="status-message"></div>
+          <div class="controls">
+            <button class="copy-btn" id="copy-target">Copy</button>
+          </div>
+        </div>
+      </div>
+      <div class="btn-with-spinner">
+        <button id="translate-btn">Translate</button>
+        <div id="spinner" class="spinner"></div>
+      </div>
+      <div id="debug-info" class="debug"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>Made By Love </p>
+    <p>Translate text between multiple languages instantly</p>
+    <div class="social-links">
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-github"></i></a>
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      // DOM element selections
+      const sourceText = document.getElementById('source-text');
+      const targetText = document.getElementById('target-text');
+      const sourceLanguage = document.getElementById('source-language');
+      const targetLanguage = document.getElementById('target-language');
+      const translateBtn = document.getElementById('translate-btn');
+      const swapBtn = document.getElementById('swap-languages');
+      const sourceStatus = document.getElementById('source-status');
+      const targetStatus = document.getElementById('target-status');
+      const charCounter = document.getElementById('char-counter');
+      const copySource = document.getElementById('copy-source');
+      const copyTarget = document.getElementById('copy-target');
+      const clearSource = document.getElementById('clear-source');
+      const spinner = document.getElementById('spinner');
+      const debugInfo = document.getElementById('debug-info');
+
+      // Modal elements
+      const mobileToggle = document.getElementById('mobile-toggle');
+      const navLinks = document.getElementById('nav-links');
+
+      // Load available languages from the server
+      async function loadLanguages() {
+        try {
+          const response = await fetch('/available_languages');
+          if (!response.ok) {
+            throw new Error('Failed to load languages');
+          }
+          const data = await response.json();
+          const languages = data.languages; // Expecting { "en": "English", ... }
+          for (const [code, name] of Object.entries(languages)) {
+            const option = document.createElement('option');
+            option.value = code;
+            option.textContent = name;
+            sourceLanguage.appendChild(option.cloneNode(true));
+            targetLanguage.appendChild(option);
+          }
+          // Set default target language to English if available
+          if (languages['en']) {
+            targetLanguage.value = 'en';
+          }
+        } catch (error) {
+          sourceStatus.textContent = 'Error loading languages: ' + error.message;
+        }
+      }
+
+      // Enable/disable swap button based on source language
+      function updateSwapButton() {
+        swapBtn.disabled = sourceLanguage.value === 'auto';
+      }
+
+      // Update character count as user types
+      sourceText.addEventListener('input', () => {
+        const length = sourceText.value.length;
+        charCounter.textContent = length;
+      });
+
+      // Handle translate button click
+      translateBtn.addEventListener('click', async () => {
+        const text = sourceText.value.trim();
+        if (!text) {
+          sourceStatus.textContent = 'Please enter text to translate';
+          return;
+        }
+        const sourceLang = sourceLanguage.value;
+        const targetLang = targetLanguage.value;
+        sourceStatus.textContent = 'Translating...';
+        targetStatus.textContent = '';
+        targetText.value = 'Working on translation...';
+        spinner.style.display = 'block';
+        translateBtn.disabled = true;
+        try {
+          const response = await fetch('/translate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              text: text,
+              source_language: sourceLang,
+              target_language: targetLang,
+            }),
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          const data = await response.json();
+          if (data.success) {
+            targetText.value = data.translated_text;
+            if (sourceLang === 'auto' && data.detected_source_language) {
+              sourceLanguage.value = data.detected_source_language;
+              sourceStatus.textContent = `Detected language: ${sourceLanguage.options[sourceLanguage.selectedIndex].text}`;
+            } else {
+              sourceStatus.textContent = '';
+            }
+          } else {
+            throw new Error(data.error || 'Translation failed');
+          }
+        } catch (error) {
+          sourceStatus.textContent = 'Error: ' + error.message;
+          targetText.value = '';
+        } finally {
+          spinner.style.display = 'none';
+          translateBtn.disabled = false;
+        }
+      });
+
+      // Handle swap languages button click
+      swapBtn.addEventListener('click', () => {
+        if (sourceLanguage.value === 'auto') {
+          sourceStatus.textContent = 'Cannot swap when source language is set to auto-detect';
+          return;
+        }
+        const tempLang = sourceLanguage.value;
+        sourceLanguage.value = targetLanguage.value;
+        targetLanguage.value = tempLang;
+        const tempText = sourceText.value;
+        sourceText.value = targetText.value;
+        targetText.value = tempText;
+        sourceStatus.textContent = 'Languages swapped';
+        targetStatus.textContent = '';
+        setTimeout(() => {
+          sourceStatus.textContent = '';
+        }, 2000);
+      });
+
+      // Copy source text to clipboard
+      copySource.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(sourceText.value);
+          sourceStatus.textContent = 'Source copied!';
+        } catch (err) {
+          sourceStatus.textContent = 'Copy failed';
+        }
+        setTimeout(() => {
+          sourceStatus.textContent = '';
+        }, 2000);
+      });
+
+      // Copy target text to clipboard
+      copyTarget.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(targetText.value);
+          targetStatus.textContent = 'Target copied!';
+        } catch (err) {
+          targetStatus.textContent = 'Copy failed';
+        }
+        setTimeout(() => {
+          targetStatus.textContent = '';
+        }, 2000);
+      });
+
+      // Clear source text
+      clearSource.addEventListener('click', () => {
+        sourceText.value = '';
+        charCounter.textContent = '0';
+        sourceStatus.textContent = 'Source cleared';
+        targetText.value = '';
+        targetStatus.textContent = '';
+        setTimeout(() => {
+          sourceStatus.textContent = '';
+        }, 2000);
+      });
+
+      // Mobile menu toggle
+      mobileToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+      });
+
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        loadLanguages();
+        sourceLanguage.addEventListener('change', updateSwapButton);
+        updateSwapButton();
+      });
+    })();
+  </script>
+</body>
+</html>
